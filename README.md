@@ -9,7 +9,7 @@ design thinking and disciplined execution.
 
 <br/>
 
-👉 **[Open the Wiki](https://github.com/mobile-development-group-2026/wiki)**
+👉 **[Open the Wiki](https://github.com/mobile-development-group-2026/wiki/wiki)**
 
 </div>
 
