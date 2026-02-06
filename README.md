@@ -25,7 +25,7 @@ design thinking and disciplined execution.
   </tr>
   <tr>
     <td align="center"><b>Juan David Ortiz Prada</b></td>
-    <td align="center"><b>Ali Ciftçi</b></td>
+    <td align="center"><b>Ali Cifçi</b></td>
     <td align="center"><b>Juan Esteban Quiroga</b></td>
   </tr>
 </table>
