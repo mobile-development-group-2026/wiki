@@ -1,0 +1,127 @@
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#7C3AED",
+    "primaryTextColor": "#FFFFFF",
+    "primaryBorderColor": "#6D28D9",
+    "secondaryColor": "#F3E8FF",
+    "secondaryTextColor": "#4C1D95",
+    "tertiaryColor": "#ECFDF5",
+    "tertiaryTextColor": "#065F46",
+    "lineColor": "#8B5CF6",
+    "noteBkgColor": "#FEF3C7",
+    "noteTextColor": "#92400E",
+    "fontFamily": "Inter, system-ui, sans-serif"
+  }
+}}%%
+
+flowchart TB
+
+    subgraph RATIONALE["<b>RATIONALE: Why MVVM?</b>"]
+        direction LR
+        R1["SwiftUI is inherently declarative: views describe <b>what</b> to render<br/>based on state. MVVM separates <b>presentation logic</b> from<br/><b>UI declaration</b>, making each independently testable.<br/><br/>ViewModels hold form state, validation, loading flags, and API calls.<br/>Views remain pure UI — they bind to VM properties via @Bindable<br/>and trigger actions via VM methods. Models are plain Codable structs."]
+    end
+
+    subgraph MODEL_LAYER["<b>MODEL LAYER</b>  &mdash;  Plain data structs, no logic"]
+        direction TB
+        SR["<b>SyncResponse</b><br/><i>Codable</i><br/>id, clerkId, role, firstName,<br/>lastName, email, onboarded,<br/>studentProfile?, lifestyleProfile?"]
+        SPR["<b>StudentProfileResponse</b><br/><i>Codable</i><br/>university, birthYear,<br/>graduationYear, bio, hobbies"]
+        LPR["<b>LifestyleProfileResponse</b><br/><i>Codable</i><br/>noiseLevel, cleanlinessLevel,<br/>sleepSchedule, lifestyleTags"]
+        UR["<b>UserRole</b><br/><i>Enum</i><br/>student, landlord"]
+        HS["<b>HousingSituation</b><br/><i>Enum</i><br/>havePlace, needPlace"]
+    end
+
+    subgraph SERVICE_LAYER["<b>SERVICE LAYER</b>  &mdash;  Network I/O, singleton access"]
+        direction TB
+        API["<b>APIClient.shared</b><br/><i>Singleton</i><br/>get / post / patch / delete<br/>Base: roomora-api.onrender.com"]
+        API_AUTH["<b>+ Auth</b><br/>syncUser() &rarr; SyncResponse<br/>fetchProfile() &rarr; SyncResponse"]
+        API_PROF["<b>+ Profile</b><br/>updateProfile() &rarr; SyncResponse<br/>updateStudentProfile() &rarr; StudentProfileResponse<br/>updateLifestyleProfile() &rarr; LifestyleProfileResponse"]
+        API --- API_AUTH
+        API --- API_PROF
+    end
+
+    subgraph VM_LAYER["<b>VIEWMODEL LAYER</b>  &mdash;  @Observable classes with presentation logic"]
+        direction TB
+
+        subgraph AUTH_VMS["<b>Authentication ViewModels</b>"]
+            SIVM["<b>SignInViewModel</b><br/><i>@Observable</i><br/><b>State:</b> email, password,<br/>isLoading, errorMessage<br/><b>Actions:</b> signIn(clerk:session:)"]
+            SUVM["<b>SignUpViewModel</b><br/><i>@Observable</i><br/><b>State:</b> firstName, lastName,<br/>email, phone, password,<br/>role, agreedToTerms, isVerifying<br/><b>Actions:</b> signUp(clerk:)"]
+            VEVM["<b>VerifyEmailViewModel</b><br/><i>@Observable</i><br/><b>State:</b> code, isLoading,<br/>errorMessage<br/><b>Actions:</b> verify(clerk:session:...)"]
+        end
+
+        subgraph ONBOARD_VMS["<b>Onboarding ViewModels</b>  &mdash;  Coordinator + 3 children"]
+            OVM["<b>OnboardingViewModel</b><br/><i>@Observable &mdash; Coordinator</i><br/><b>State:</b> step, isLoading,<br/>showCelebration<br/><b>Actions:</b> nextStep(clerk:),<br/>complete(clerk:), finishOnboarding()"]
+            BPVM["<b>BuildYourProfileViewModel</b><br/><i>@Observable</i><br/><b>State:</b> university, birthYear,<br/>graduationYear, bio,<br/>selectedHobbies, profilePhoto<br/><b>Validation:</b> canContinue"]
+            RSVM["<b>RoommateSituationViewModel</b><br/><i>@Observable</i><br/><b>State:</b> situation<br/><b>Validation:</b> canContinue"]
+            RPVM["<b>RoommatePreferencesViewModel</b><br/><i>@Observable</i><br/><b>State:</b> spotsAvailable, moveInMonth,<br/>genderPref, sleepSchedule,<br/>cleanliness, lifestyle, requirements"]
+
+            OVM -->|"owns"| BPVM
+            OVM -->|"owns"| RSVM
+            OVM -->|"owns"| RPVM
+        end
+    end
+
+    subgraph VIEW_LAYER["<b>VIEW LAYER</b>  &mdash;  Declarative SwiftUI, binds to VM state"]
+        direction TB
+
+        subgraph AUTH_VIEWS["<b>Authentication Views</b>"]
+            SIV["<b>SignInView</b><br/><i>@State var vm = SignInViewModel()</i><br/>Email + password form<br/>Calls vm.signIn(), dismiss on success"]
+            SUV["<b>SignUpView</b><br/><i>@State var vm = SignUpViewModel()</i><br/>Registration form with role picker<br/>Toggles to VerifyEmailView"]
+            VEV["<b>VerifyEmailView</b><br/><i>@State var vm = VerifyEmailViewModel()</i><br/>6-digit code input<br/>Calls vm.verify()"]
+        end
+
+        subgraph ONBOARD_VIEWS["<b>Onboarding Views</b>"]
+            OV["<b>OnboardingView</b><br/><i>@State var vm = OnboardingViewModel()</i><br/>Step progress bar, Continue button<br/>Orchestrates 3 child views"]
+            BPV["<b>BuildYourProfileView</b><br/><i>@Bindable var vm (passed in)</i><br/>Photo, university, bio, hobbies"]
+            RSV["<b>RoommateSituationView</b><br/><i>@Bindable var vm (passed in)</i><br/>Have place vs need place cards"]
+            RPV["<b>RoommatePreferencesView</b><br/><i>@Bindable var vm (passed in)</i><br/>Sleep, cleanliness, lifestyle chips"]
+        end
+
+        subgraph HOME_VIEWS["<b>Home Views</b>  &mdash;  No ViewModel, read-only from session"]
+            HV["<b>HomeView</b><br/>Routes by session.role"]
+            SHV["<b>StudentHomeView</b><br/>Listings feed + bottom nav"]
+            LHV["<b>LandlordHomeView</b><br/>Stats + listings management"]
+        end
+    end
+
+    %% View → ViewModel bindings
+    SIV -.->|"@State creates"| SIVM
+    SUV -.->|"@State creates"| SUVM
+    VEV -.->|"@State creates"| VEVM
+    OV -.->|"@State creates"| OVM
+    OV -->|"passes vm.buildProfile"| BPV
+    OV -->|"passes vm.situation"| RSV
+    OV -->|"passes vm.preferences"| RPV
+
+    %% ViewModel → Service calls
+    SIVM -->|"signIn → fetchProfile"| API_AUTH
+    SUVM -->|"signUp via Clerk SDK"| API
+    VEVM -->|"verify → syncUser"| API_AUTH
+    OVM -->|"updateStudentProfile"| API_PROF
+    OVM -->|"updateProfile(onboarded)"| API_PROF
+
+    %% Service → Model responses
+    API_AUTH -->|"returns"| SR
+    API_PROF -->|"returns"| SPR
+    API_PROF -->|"returns"| LPR
+
+    style RATIONALE fill:#FEF3C7,stroke:#F59E0B,stroke-width:2px,color:#92400E
+    style MODEL_LAYER fill:#DBEAFE,stroke:#3B82F6,stroke-width:2px
+    style SERVICE_LAYER fill:#FEE2E2,stroke:#EF4444,stroke-width:2px
+    style VM_LAYER fill:#F3E8FF,stroke:#8B5CF6,stroke-width:2px
+    style VIEW_LAYER fill:#ECFDF5,stroke:#10B981,stroke-width:2px
+    style API fill:#DC2626,color:#FFFFFF
+    style API_AUTH fill:#B91C1C,color:#FFFFFF
+    style API_PROF fill:#B91C1C,color:#FFFFFF
+    style OVM fill:#7C3AED,color:#FFFFFF
+    style BPVM fill:#8B5CF6,color:#FFFFFF
+    style RSVM fill:#8B5CF6,color:#FFFFFF
+    style RPVM fill:#8B5CF6,color:#FFFFFF
+    style SIVM fill:#8B5CF6,color:#FFFFFF
+    style SUVM fill:#8B5CF6,color:#FFFFFF
+    style VEVM fill:#8B5CF6,color:#FFFFFF
+    style SR fill:#3B82F6,color:#FFFFFF
+    style SPR fill:#3B82F6,color:#FFFFFF
+    style LPR fill:#3B82F6,color:#FFFFFF
+    style UR fill:#60A5FA,color:#FFFFFF
+    style HS fill:#60A5FA,color:#FFFFFF
