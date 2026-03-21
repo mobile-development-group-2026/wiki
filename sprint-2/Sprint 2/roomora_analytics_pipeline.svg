@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="780" viewBox="0 0 1200 780" xmlns="http://www.w3.org/2000/svg" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif">
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#555" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#185FA5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#534AB7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="780" fill="#FAFAFA"/>
+
+  <!-- Title -->
+  <text x="600" y="44" text-anchor="middle" font-size="22" font-weight="700" fill="#1a1a2e">Roomora — Analytics Pipeline</text>
+  <text x="600" y="66" text-anchor="middle" font-size="13" fill="#888">UML Component Diagram</text>
+
+  <!-- ─── LAYER 1: DATA SOURCES ─── -->
+  <rect x="30" y="90" width="1140" height="130" rx="12" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="1"/>
+  <text x="50" y="114" font-size="11" font-weight="600" fill="#5F5E5A" letter-spacing="1">DATA SOURCES — Mobile App Events</text>
+
+  <!-- Map events -->
+  <rect x="60" y="124" width="160" height="76" rx="8" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="1"/>
+  <text x="140" y="148" text-anchor="middle" font-size="12" font-weight="600" fill="#3C3489">Map Events</text>
+  <text x="140" y="165" text-anchor="middle" font-size="10" fill="#534AB7">map_opened</text>
+  <text x="140" y="179" text-anchor="middle" font-size="10" fill="#534AB7">pin_tapped</text>
+  <text x="140" y="193" text-anchor="middle" font-size="10" fill="#534AB7">listing_detail_viewed</text>
+
+  <!-- GPS events -->
+  <rect x="250" y="124" width="160" height="76" rx="8" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="1"/>
+  <text x="330" y="148" text-anchor="middle" font-size="12" font-weight="600" fill="#3C3489">GPS Events</text>
+  <text x="330" y="165" text-anchor="middle" font-size="10" fill="#534AB7">geofence_entered</text>
+  <text x="330" y="179" text-anchor="middle" font-size="10" fill="#534AB7">alert_received</text>
+  <text x="330" y="193" text-anchor="middle" font-size="10" fill="#534AB7">property_visited_48h</text>
+
+  <!-- Auth events -->
+  <rect x="440" y="124" width="160" height="76" rx="8" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="1"/>
+  <text x="520" y="148" text-anchor="middle" font-size="12" font-weight="600" fill="#3C3489">Auth Events</text>
+  <text x="520" y="165" text-anchor="middle" font-size="10" fill="#534AB7">user_registered</text>
+  <text x="520" y="179" text-anchor="middle" font-size="10" fill="#534AB7">email_verified</text>
+  <text x="520" y="193" text-anchor="middle" font-size="10" fill="#534AB7">profile_completed_24h</text>
+
+  <!-- Listing events -->
+  <rect x="630" y="124" width="160" height="76" rx="8" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="1"/>
+  <text x="710" y="148" text-anchor="middle" font-size="12" font-weight="600" fill="#3C3489">Listing Events</text>
+  <text x="710" y="165" text-anchor="middle" font-size="10" fill="#534AB7">listing_published</text>
+  <text x="710" y="179" text-anchor="middle" font-size="10" fill="#534AB7">required_fields_filled</text>
+  <text x="710" y="193" text-anchor="middle" font-size="10" fill="#534AB7">filter_suggestion_shown</text>
+
+  <!-- Offline events -->
+  <rect x="820" y="124" width="160" height="76" rx="8" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="1"/>
+  <text x="900" y="148" text-anchor="middle" font-size="12" font-weight="600" fill="#3C3489">Offline Events</text>
+  <text x="900" y="165" text-anchor="middle" font-size="10" fill="#534AB7">offline_session_started</text>
+  <text x="900" y="179" text-anchor="middle" font-size="10" fill="#534AB7">cached_listing_viewed</text>
+  <text x="900" y="193" text-anchor="middle" font-size="10" fill="#534AB7">cache_ttl_recorded</text>
+
+  <!-- Filter events -->
+  <rect x="1010" y="124" width="140" height="76" rx="8" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="1"/>
+  <text x="1080" y="148" text-anchor="middle" font-size="12" font-weight="600" fill="#3C3489">Filter Events</text>
+  <text x="1080" y="165" text-anchor="middle" font-size="10" fill="#534AB7">suggestion_accepted</text>
+  <text x="1080" y="179" text-anchor="middle" font-size="10" fill="#534AB7">suggestion_rejected</text>
+  <text x="1080" y="193" text-anchor="middle" font-size="10" fill="#534AB7">matches_generated</text>
+
+  <!-- ─── ARROWS SOURCE → COLLECTOR ─── -->
+  <line x1="140" y1="200" x2="540" y2="270" stroke="#AFA9EC" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="330" y1="200" x2="560" y2="270" stroke="#AFA9EC" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="520" y1="200" x2="580" y2="270" stroke="#AFA9EC" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="710" y1="200" x2="620" y2="270" stroke="#AFA9EC" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="900" y1="200" x2="640" y2="270" stroke="#AFA9EC" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <line x1="1080" y1="200" x2="660" y2="270" stroke="#AFA9EC" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <!-- ─── LAYER 2: COLLECTION ─── -->
+  <rect x="380" y="260" width="440" height="60" rx="10" fill="#E1F5EE" stroke="#5DCAA5" stroke-width="1.5"/>
+  <text x="600" y="284" text-anchor="middle" font-size="13" font-weight="700" fill="#085041">«component» Central Event Collector</text>
+  <text x="600" y="302" text-anchor="middle" font-size="11" fill="#0F6E56">Routes events by latency requirement · Segment / Amplitude SDK</text>
+
+  <!-- ─── ARROWS COLLECTOR → PATHS ─── -->
+  <line x1="500" y1="320" x2="280" y2="380" stroke="#185FA5" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+  <text x="340" y="358" text-anchor="middle" font-size="10" fill="#185FA5">real-time</text>
+
+  <line x1="700" y1="320" x2="900" y2="380" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+  <text x="840" y="358" text-anchor="middle" font-size="10" fill="#1D9E75">batch (daily)</text>
+
+  <!-- ─── LAYER 3: PROCESSING PATHS ─── -->
+
+  <!-- Streaming path -->
+  <rect x="60" y="380" width="440" height="110" rx="10" fill="#E6F1FB" stroke="#85B7EB" stroke-width="1.5"/>
+  <text x="100" y="402" font-size="11" font-weight="600" fill="#185FA5" letter-spacing="0.5">STREAMING PATH — Real-time processing</text>
+
+  <rect x="80" y="412" width="180" height="60" rx="8" fill="white" stroke="#85B7EB" stroke-width="1"/>
+  <text x="170" y="432" text-anchor="middle" font-size="11" font-weight="600" fill="#0C447C">«stream processor»</text>
+  <text x="170" y="448" text-anchor="middle" font-size="11" font-weight="600" fill="#0C447C">Streaming Engine</text>
+  <text x="170" y="463" text-anchor="middle" font-size="10" fill="#185FA5">Kafka / Flink</text>
+
+  <line x1="260" y1="442" x2="300" y2="442" stroke="#185FA5" stroke-width="1.2" marker-end="url(#arrow-blue)"/>
+
+  <rect x="300" y="412" width="180" height="60" rx="8" fill="white" stroke="#85B7EB" stroke-width="1"/>
+  <text x="390" y="432" text-anchor="middle" font-size="11" font-weight="600" fill="#0C447C">«dashboard»</text>
+  <text x="390" y="448" text-anchor="middle" font-size="11" font-weight="600" fill="#0C447C">Real-time Monitor</text>
+  <text x="390" y="463" text-anchor="middle" font-size="10" fill="#185FA5">GPS alert → visit (48h)</text>
+
+  <!-- Batch path -->
+  <rect x="700" y="380" width="440" height="110" rx="10" fill="#EAF3DE" stroke="#97C459" stroke-width="1.5"/>
+  <text x="740" y="402" font-size="11" font-weight="600" fill="#3B6D11" letter-spacing="0.5">BATCH PATH — Daily processing</text>
+
+  <rect x="720" y="412" width="180" height="60" rx="8" fill="white" stroke="#97C459" stroke-width="1"/>
+  <text x="810" y="432" text-anchor="middle" font-size="11" font-weight="600" fill="#27500A">«batch processor»</text>
+  <text x="810" y="448" text-anchor="middle" font-size="11" font-weight="600" fill="#27500A">Batch Engine</text>
+  <text x="810" y="463" text-anchor="middle" font-size="10" fill="#3B6D11">dbt / Spark</text>
+
+  <line x1="900" y1="442" x2="940" y2="442" stroke="#1D9E75" stroke-width="1.2" marker-end="url(#arrow-green)"/>
+
+  <rect x="940" y="412" width="180" height="60" rx="8" fill="white" stroke="#97C459" stroke-width="1"/>
+  <text x="1030" y="432" text-anchor="middle" font-size="11" font-weight="600" fill="#27500A">«aggregator»</text>
+  <text x="1030" y="448" text-anchor="middle" font-size="11" font-weight="600" fill="#27500A">Historical Reports</text>
+  <text x="1030" y="463" text-anchor="middle" font-size="10" fill="#3B6D11">Profile completion, listings</text>
+
+  <!-- ─── ARROWS PATHS → WAREHOUSE ─── -->
+  <line x1="280" y1="490" x2="520" y2="560" stroke="#185FA5" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+  <line x1="910" y1="490" x2="700" y2="560" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+
+  <!-- ─── LAYER 4: DATA WAREHOUSE ─── -->
+  <rect x="380" y="555" width="440" height="60" rx="10" fill="#FAEEDA" stroke="#EF9F27" stroke-width="1.5"/>
+  <text x="600" y="579" text-anchor="middle" font-size="13" font-weight="700" fill="#633806">«storage» Data Warehouse</text>
+  <text x="600" y="597" text-anchor="middle" font-size="11" fill="#854F0B">BigQuery / Snowflake · Clean, queryable, versioned</text>
+
+  <!-- ─── ARROW WAREHOUSE → BI ─── -->
+  <line x1="600" y1="615" x2="600" y2="645" stroke="#BA7517" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ─── LAYER 5: BI LAYER ─── -->
+  <rect x="200" y="645" width="800" height="100" rx="10" fill="#FBEAF0" stroke="#ED93B1" stroke-width="1.5"/>
+  <text x="600" y="668" text-anchor="middle" font-size="13" font-weight="700" fill="#72243E">«BI layer» Business Intelligence — Looker / Tableau</text>
+
+  <!-- BQ1 -->
+  <rect x="230" y="678" width="220" height="52" rx="8" fill="white" stroke="#ED93B1" stroke-width="1"/>
+  <text x="340" y="698" text-anchor="middle" font-size="11" font-weight="600" fill="#72243E">GPS effectiveness</text>
+  <text x="340" y="714" text-anchor="middle" font-size="10" fill="#993556">BQ1 · BQ4 · BQ6</text>
+  <text x="340" y="726" text-anchor="middle" font-size="10" fill="#993556">Map · GPS · Filters</text>
+
+  <!-- BQ2 -->
+  <rect x="490" y="678" width="220" height="52" rx="8" fill="white" stroke="#ED93B1" stroke-width="1"/>
+  <text x="600" y="698" text-anchor="middle" font-size="11" font-weight="600" fill="#72243E">Data quality</text>
+  <text x="600" y="714" text-anchor="middle" font-size="10" fill="#993556">BQ2 · BQ3</text>
+  <text x="600" y="726" text-anchor="middle" font-size="10" fill="#993556">Listings · Offline cache</text>
+
+  <!-- BQ3 -->
+  <rect x="750" y="678" width="220" height="52" rx="8" fill="white" stroke="#ED93B1" stroke-width="1"/>
+  <text x="860" y="698" text-anchor="middle" font-size="11" font-weight="600" fill="#72243E">User behavior</text>
+  <text x="860" y="714" text-anchor="middle" font-size="10" fill="#993556">BQ5</text>
+  <text x="860" y="726" text-anchor="middle" font-size="10" fill="#993556">Registration · Profile</text>
+
+  <!-- ─── LEGEND ─── -->
+  <rect x="30" y="758" width="1140" height="14" rx="4" fill="none"/>
+  <rect x="30" y="756" width="8" height="8" rx="2" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="1"/>
+  <text x="44" y="764" font-size="10" fill="#666">App events</text>
+  <rect x="130" y="756" width="8" height="8" rx="2" fill="#E6F1FB" stroke="#85B7EB" stroke-width="1"/>
+  <text x="144" y="764" font-size="10" fill="#666">Real-time path</text>
+  <rect x="250" y="756" width="8" height="8" rx="2" fill="#EAF3DE" stroke="#97C459" stroke-width="1"/>
+  <text x="264" y="764" font-size="10" fill="#666">Batch path</text>
+  <rect x="350" y="756" width="8" height="8" rx="2" fill="#FAEEDA" stroke="#EF9F27" stroke-width="1"/>
+  <text x="364" y="764" font-size="10" fill="#666">Data Warehouse</text>
+  <rect x="470" y="756" width="8" height="8" rx="2" fill="#FBEAF0" stroke="#ED93B1" stroke-width="1"/>
+  <text x="484" y="764" font-size="10" fill="#666">BI / Dashboards</text>
+  <text x="700" y="764" font-size="10" fill="#999">BQ1–BQ6 = Business Questions defined in sprint</text>
+
+</svg>
