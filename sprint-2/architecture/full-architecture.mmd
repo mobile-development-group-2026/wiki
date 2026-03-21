@@ -1,0 +1,168 @@
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#7C3AED",
+    "primaryTextColor": "#FFFFFF",
+    "primaryBorderColor": "#6D28D9",
+    "secondaryColor": "#F3E8FF",
+    "secondaryTextColor": "#4C1D95",
+    "lineColor": "#8B5CF6",
+    "noteBkgColor": "#FEF3C7",
+    "noteTextColor": "#92400E",
+    "fontFamily": "Inter, system-ui, sans-serif"
+  }
+}}%%
+
+flowchart TB
+
+    subgraph RATIONALE["<b>RATIONALE: Roomora Full Architecture</b>"]
+        direction LR
+        R1["Roomora uses a <b>layered architecture</b> with clear separation of concerns:<br/><br/><b>1. Presentation</b> &mdash; SwiftUI Views (declarative UI)<br/><b>2. State Management</b> &mdash; @Observable ViewModels + Environment injection<br/><b>3. Services</b> &mdash; Singleton API client with Bearer token auth<br/><b>4. Backend</b> &mdash; Rails REST API on PostgreSQL<br/><br/><b>Design patterns:</b> Observer (reactive state), MVVM (separation of concerns),<br/>Singleton (shared services), Coordinator (onboarding flow),<br/>Environment DI (dependency injection without prop drilling)"]
+    end
+
+    subgraph CLIENT["<b>iOS CLIENT  &mdash;  SwiftUI + ClerkKit</b>"]
+        direction TB
+
+        subgraph ENTRY["<b>App Entry</b>"]
+            RAPP["<b>RoomoraApp</b><br/>Creates UserSession<br/>Injects Clerk.shared<br/>+ UserSession into environment"]
+        end
+
+        subgraph NAV["<b>Navigation Layer</b>  &mdash;  Coordinator Pattern"]
+            AROUTER["<b>AppRouter</b> @Observable<br/>NavigationPath + 3 modal types"]
+            AROUTE["<b>AppRoute</b> enum<br/>home, signUp, designSystem"]
+            AMODAL["<b>AppModal</b> enum<br/>signIn, testPopup"]
+            AROUTER --- AROUTE
+            AROUTER --- AMODAL
+        end
+
+        subgraph SCREENS["<b>Screen Flow</b>  &mdash;  Conditional rendering based on auth state"]
+            direction LR
+            CVIEW["<b>ContentView</b><br/><i>Root router</i>"]
+
+            subgraph UNAUTH["Not Authenticated<br/><i>clerk.user == nil</i>"]
+                LAND["LandingView"]
+                SIGNIN["SignInView<br/>+ SignInViewModel"]
+                SIGNUP["SignUpView<br/>+ SignUpViewModel"]
+                VERIFY["VerifyEmailView<br/>+ VerifyEmailViewModel"]
+            end
+
+            subgraph LOADING["Loading<br/><i>!session.isLoaded</i>"]
+                PULSE["PulseLoader<br/>+ timeout retry"]
+            end
+
+            subgraph ONBOARD["Onboarding<br/><i>!session.isOnboarded</i>"]
+                OBVIEW["OnboardingView<br/>+ OnboardingViewModel"]
+                STEP0["BuildYourProfileView"]
+                STEP1["RoommateSituationView"]
+                STEP2["RoommatePreferencesView"]
+                CELEB["OnboardingCompleteView<br/>+ ConfettiView"]
+            end
+
+            subgraph AUTHED["Authenticated<br/><i>session.isOnboarded</i>"]
+                HOME["HomeView"]
+                SHOME["StudentHomeView"]
+                LHOME["LandlordHomeView"]
+                HOME --> SHOME
+                HOME --> LHOME
+            end
+
+            CVIEW -->|"clerk.user == nil"| UNAUTH
+            CVIEW -->|"!isLoaded"| LOADING
+            CVIEW -->|"!isOnboarded"| ONBOARD
+            CVIEW -->|"ready"| AUTHED
+        end
+
+        subgraph SERVICES["<b>Service Layer</b>  &mdash;  Singleton pattern"]
+            direction LR
+            APIC["<b>APIClient.shared</b><br/>GET / POST / PATCH / DELETE<br/>Bearer token from Clerk"]
+            CLERK["<b>Clerk SDK</b><br/>signInWithPassword<br/>signUp, verifyEmailCode<br/>session.getToken()"]
+        end
+
+        subgraph COMPONENTS["<b>Reusable Components</b>  &mdash;  Design System"]
+            direction LR
+            C1["AppButton"]
+            C2["AppTextField"]
+            C3["PhoneField"]
+            C4["ProfileAvatar"]
+            C5["FlowLayout"]
+            C6["PulseLoader"]
+            C7["ConfettiView"]
+            C8["ErrorMessage"]
+        end
+
+        subgraph THEME["<b>Design Tokens</b>"]
+            direction LR
+            T1["AppColors<br/>purple, neutral, green,<br/>yellow, red (50-900)"]
+            T2["AppTypography<br/>Sora font family<br/>h1-h3, body10-16"]
+            T3["AppSpacing<br/>xxxs(2) to xxxl(48)"]
+        end
+    end
+
+    subgraph BACKEND["<b>BACKEND  &mdash;  Rails 8 REST API</b>"]
+        direction TB
+
+        subgraph ENDPOINTS["<b>API Endpoints</b>  &mdash;  /api/v1"]
+            direction TB
+            E1["<b>POST /auth/sync</b><br/>Create user after Clerk sign-up"]
+            E2["<b>GET /profile</b><br/>Fetch user + nested profiles"]
+            E3["<b>PATCH /profile</b><br/>Update user fields (onboarded)"]
+            E4["<b>PATCH /profile/student</b><br/>Update university, bio, hobbies, etc."]
+            E5["<b>PATCH /profile/lifestyle</b><br/>Update sleep, cleanliness, etc."]
+            E6["<b>GET /listings</b><br/>Search with filters"]
+            E7["<b>POST /listings</b><br/>Create new listing"]
+        end
+
+        subgraph DB["<b>PostgreSQL</b>  &mdash;  UUID primary keys"]
+            direction TB
+            USERS["<b>users</b><br/>clerk_id, role, first_name,<br/>last_name, email, phone,<br/>onboarded, verified"]
+            SPROF["<b>student_profiles</b><br/>university, birth_year,<br/>graduation_year, bio,<br/>hobbies (text[])"]
+            LPROF["<b>lifestyle_profiles</b><br/>noise_level, cleanliness_level,<br/>sleep_schedule, lifestyle_tags"]
+            LISTINGS["<b>listings</b><br/>title, address, rent,<br/>bedrooms, lat/lng, status"]
+
+            USERS -->|"has_one"| SPROF
+            USERS -->|"has_one"| LPROF
+            USERS -->|"has_many"| LISTINGS
+        end
+
+        subgraph AUTH_MW["<b>Auth Middleware</b>"]
+            JWT["<b>ClerkJwtVerifier</b><br/>Verifies Bearer token<br/>Maps clerk_id to user"]
+        end
+    end
+
+    %% Cross-layer connections
+    RAPP --> CVIEW
+    SIGNIN --> CLERK
+    SIGNUP --> CLERK
+    VERIFY --> CLERK
+    VERIFY --> APIC
+    OBVIEW --> APIC
+    APIC -->|"HTTPS + Bearer token"| ENDPOINTS
+    CLERK -->|"JWT tokens"| JWT
+    JWT -->|"identifies user"| ENDPOINTS
+    ENDPOINTS --> DB
+
+    style RATIONALE fill:#FEF3C7,stroke:#F59E0B,stroke-width:2px,color:#92400E
+    style CLIENT fill:#F5F3FF,stroke:#7C3AED,stroke-width:2px
+    style BACKEND fill:#FFF1F2,stroke:#E11D48,stroke-width:2px
+    style ENTRY fill:#EDE9FE,stroke:#8B5CF6,stroke-width:1px
+    style NAV fill:#EDE9FE,stroke:#8B5CF6,stroke-width:1px
+    style SCREENS fill:#F3E8FF,stroke:#A78BFA,stroke-width:1px
+    style SERVICES fill:#DBEAFE,stroke:#3B82F6,stroke-width:1px
+    style COMPONENTS fill:#ECFDF5,stroke:#10B981,stroke-width:1px
+    style THEME fill:#FEF3C7,stroke:#F59E0B,stroke-width:1px
+    style ENDPOINTS fill:#FFE4E6,stroke:#FB7185,stroke-width:1px
+    style DB fill:#FFE4E6,stroke:#FB7185,stroke-width:1px
+    style AUTH_MW fill:#FFE4E6,stroke:#FB7185,stroke-width:1px
+    style RAPP fill:#7C3AED,color:#FFFFFF
+    style CVIEW fill:#7C3AED,color:#FFFFFF
+    style APIC fill:#2563EB,color:#FFFFFF
+    style CLERK fill:#2563EB,color:#FFFFFF
+    style JWT fill:#E11D48,color:#FFFFFF
+    style USERS fill:#BE123C,color:#FFFFFF
+    style SPROF fill:#BE123C,color:#FFFFFF
+    style LPROF fill:#BE123C,color:#FFFFFF
+    style LISTINGS fill:#BE123C,color:#FFFFFF
+    style UNAUTH fill:#FEF3C7,stroke:#F59E0B,stroke-width:1px,color:#92400E
+    style LOADING fill:#DBEAFE,stroke:#3B82F6,stroke-width:1px,color:#1E40AF
+    style ONBOARD fill:#F3E8FF,stroke:#8B5CF6,stroke-width:1px,color:#5B21B6
+    style AUTHED fill:#ECFDF5,stroke:#10B981,stroke-width:1px,color:#065F46

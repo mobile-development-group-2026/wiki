@@ -1,0 +1,102 @@
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#7C3AED",
+    "primaryTextColor": "#FFFFFF",
+    "primaryBorderColor": "#6D28D9",
+    "secondaryColor": "#F3E8FF",
+    "secondaryTextColor": "#4C1D95",
+    "tertiaryColor": "#ECFDF5",
+    "tertiaryTextColor": "#065F46",
+    "lineColor": "#8B5CF6",
+    "noteBkgColor": "#FEF3C7",
+    "noteTextColor": "#92400E",
+    "fontFamily": "Inter, system-ui, sans-serif"
+  }
+}}%%
+
+flowchart TB
+
+    subgraph RATIONALE["<b>RATIONALE: Why the Observer Pattern?</b>"]
+        direction LR
+        R1["SwiftUI's @Observable macro enables <b>fine-grained reactivity</b>:<br/>views re-render only when the specific properties<br/>they read change, not the entire object.<br/><br/>This replaces the older ObservableObject/Published<br/>pattern with zero boilerplate and better performance."]
+    end
+
+    subgraph INJECTION["<b>LAYER 1: Dependency Injection via @Environment</b>"]
+        direction TB
+        APP["<b>RoomoraApp</b><br/><i>@main entry point</i>"]
+
+        APP -- ".environment(Clerk.shared)" --> CLERK_ENV["<b>Clerk.shared</b><br/><i>Authentication SDK</i><br/>Publishes: user, session"]
+        APP -- ".environment(session)" --> SESSION_ENV["<b>UserSession</b><br/><i>@Observable</i><br/>Publishes: profile, isLoaded,<br/>isOnboarded, role, firstName"]
+    end
+
+    subgraph ROUTER_LAYER["<b>LAYER 2: Navigation State</b>"]
+        CONTENT["<b>ContentView</b><br/><i>Creates AppRouter</i>"]
+        CONTENT -- ".environment(router)" --> ROUTER_ENV["<b>AppRouter</b><br/><i>@Observable</i><br/>Publishes: path, presentedSheet,<br/>presentedPopup"]
+    end
+
+    subgraph OBSERVERS["<b>LAYER 3: Views Observing State Changes</b>"]
+        direction TB
+
+        subgraph AUTH_OBSERVERS["Authentication Observers"]
+            CV["<b>ContentView</b><br/>Observes: clerk.user?.id,<br/>session.isLoaded, session.isOnboarded<br/><i>Routes to correct screen</i>"]
+            SIV["<b>SignInView</b><br/>Observes: clerk, session<br/><i>Triggers sign-in flow</i>"]
+            SUV["<b>SignUpView</b><br/>Observes: clerk<br/><i>Triggers sign-up flow</i>"]
+            VEV["<b>VerifyEmailView</b><br/>Observes: clerk, session<br/><i>Verifies email, syncs user</i>"]
+        end
+
+        subgraph NAV_OBSERVERS["Navigation Observers"]
+            LV["<b>LandingView</b><br/>Observes: router<br/><i>Navigates to signUp, presents signIn</i>"]
+        end
+
+        subgraph HOME_OBSERVERS["Home Screen Observers"]
+            HV["<b>HomeView</b><br/>Observes: session.role<br/><i>Dispatches student vs landlord</i>"]
+            SHV["<b>StudentHomeView</b><br/>Observes: session.firstName<br/><i>Displays personalized greeting</i>"]
+            LHV["<b>LandlordHomeView</b><br/>Observes: session.firstName<br/><i>Displays personalized greeting</i>"]
+        end
+
+        subgraph ONBOARD_OBSERVERS["Onboarding Observers"]
+            OV["<b>OnboardingView</b><br/>Observes: clerk, session<br/><i>Coordinates 3-step flow</i>"]
+        end
+    end
+
+    subgraph REACTIVE["<b>LAYER 4: Reactive Data Flow</b>"]
+        direction LR
+        CHANGE["State Change<br/><i>e.g. clerk.user set after sign-in</i>"]
+        NOTIFY["SwiftUI Runtime<br/><i>Detects property access</i>"]
+        RERENDER["View Re-render<br/><i>Only affected views update</i>"]
+        CHANGE --> NOTIFY --> RERENDER
+    end
+
+    subgraph ONCHANGE["<b>LAYER 5: Side-Effect Observers</b>"]
+        direction TB
+        OC1["<b>.onChange(of: clerk.user?.id)</b><br/>in ContentView<br/><i>Detects sign-in/sign-out transitions</i><br/><i>Clears session on sign-out</i>"]
+        OC2["<b>.task(id: clerk.user?.id)</b><br/>in ContentView<br/><i>Loads profile when user authenticates</i>"]
+        OC3["<b>.task(id: session.isLoaded)</b><br/>in ContentView<br/><i>Triggers 15s timeout for loading state</i>"]
+    end
+
+    CLERK_ENV -.->|"@Environment(Clerk.self)"| AUTH_OBSERVERS
+    SESSION_ENV -.->|"@Environment(UserSession.self)"| AUTH_OBSERVERS
+    SESSION_ENV -.->|"@Environment(UserSession.self)"| HOME_OBSERVERS
+    SESSION_ENV -.->|"@Environment(UserSession.self)"| ONBOARD_OBSERVERS
+    ROUTER_ENV -.->|"@Environment(AppRouter.self)"| NAV_OBSERVERS
+    CLERK_ENV -.->|"@Environment(Clerk.self)"| ONBOARD_OBSERVERS
+
+    CV --> OC1
+    CV --> OC2
+    CV --> OC3
+
+    style RATIONALE fill:#FEF3C7,stroke:#F59E0B,stroke-width:2px,color:#92400E
+    style INJECTION fill:#F3E8FF,stroke:#8B5CF6,stroke-width:2px
+    style ROUTER_LAYER fill:#F3E8FF,stroke:#8B5CF6,stroke-width:2px
+    style OBSERVERS fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px
+    style REACTIVE fill:#ECFDF5,stroke:#10B981,stroke-width:2px
+    style ONCHANGE fill:#FEF3C7,stroke:#F59E0B,stroke-width:2px
+    style APP fill:#7C3AED,color:#FFFFFF
+    style CLERK_ENV fill:#6D28D9,color:#FFFFFF
+    style SESSION_ENV fill:#6D28D9,color:#FFFFFF
+    style CONTENT fill:#7C3AED,color:#FFFFFF
+    style ROUTER_ENV fill:#6D28D9,color:#FFFFFF
+    style CHANGE fill:#10B981,color:#FFFFFF
+    style NOTIFY fill:#059669,color:#FFFFFF
+    style RERENDER fill:#047857,color:#FFFFFF
